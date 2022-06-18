@@ -1,3 +1,20 @@
+## Endpoints
+
+### Get All Documents from Collection
+GET https://example.com/:collectionName
+
+### Get Document by ID from Collection
+GET https://example.com/:collectionName/:id
+
+### Create new Document
+POST https://example.com/:collectionName/create
+
+### Update Document
+PATCH https://example.com/:collectionName/update/:id
+
+### Delete Document
+DELETE https://example.com/:collectionName/delete/:id
+
 ## Setup an Auth0 Account
 
 You'll need an Auth0 account to add authentication to the API. Alternatively you could replace the code with another authentication provider.
