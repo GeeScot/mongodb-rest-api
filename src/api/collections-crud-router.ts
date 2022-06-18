@@ -1,57 +1,64 @@
-import { Router, Request, Response, Express, NextFunction } from 'express';
-import { Filter, ObjectId } from 'mongodb';
-import Repository from '../db/repository';
+import { Router, Request, Response, Express } from 'express';
+import { Filter, ObjectId, OptionalUnlessRequiredId } from 'mongodb';
+import { getCollection } from '../db/mongodb';
 
 const collectionsCrudRouter = <TModel extends { _id?: ObjectId, tenantId: string }>() => {
+  
   async function GetAll(req: Request, res: Response) {
-    const collection = req.params.collection;
-    const repo = new Repository<TModel>(collection);
-    const objs = await repo.all({ tenantId: req.user.sub }, { name: 1 });
+    const collection = getCollection(req.params.collection);
+
+    const objs = await collection
+      .find({ tenantId: req.user.sub })
+      .toArray();
 
     res.json(objs);
   }
 
   async function Get(req: Request, res: Response) {
-    const collection = req.params.collection;
-    const getObjectId = req.params['id'];
+    const collection = getCollection(req.params.collection);
 
-    const repo = new Repository<TModel>(collection);
-    const obj = await repo.get({ _id: new ObjectId(getObjectId), tenantId: req.user.sub } as Filter<TModel>);
+    const targetId = req.params['id'];
+
+    const obj = await collection.findOne({ _id: new ObjectId(targetId), tenantId: req.user.sub } as Filter<TModel>);
 
     res.json(obj);
   }
 
   async function Create(req: Request, res: Response) {
-    const collection = req.params.collection;
+    const collection = getCollection(req.params.collection);
+
     const createObject = <TModel>req.body;
     createObject.tenantId = req.user.sub;
 
-    const repo = new Repository<TModel>(collection);
-    await repo.insert(createObject);
+    await collection.insertOne(<OptionalUnlessRequiredId<TModel>>(createObject));
 
     res.sendStatus(200);
   }
 
   async function Update(req: Request, res: Response) {
-    const collection = req.params.collection;
+    const collection = getCollection(req.params.collection);
+
     const updateObjectId = req.params['id'];
     const updateObject = <TModel>req.body;
 
-    const repo = new Repository<TModel>(collection);
-    await repo.update(
+    const updatedObject = await collection.findOneAndUpdate(
       { _id: new ObjectId(updateObjectId), tenantId: req.user.sub } as Filter<TModel>,
-      { $set: updateObject }
+      { $set: updateObject },
+      { returnDocument: 'after' }
     );
 
-    res.json(updateObject);
+    if (updatedObject.ok) {
+      res.json(updatedObject.value);
+    } else {
+      res.sendStatus(400);
+    }
   }
 
   async function Delete(req: Request, res: Response) {
-    const collection = req.params.collection;
+    const collection = getCollection(req.params.collection);
+  
     const deleteObjectId = req.params['id'];
-
-    const repo = new Repository<TModel>(collection);
-    await repo.remove({ _id: new ObjectId(deleteObjectId), tenantId: req.user.sub } as Filter<TModel>);
+    await collection.deleteMany({ _id: new ObjectId(deleteObjectId), tenantId: req.user.sub } as Filter<TModel>);
 
     res.sendStatus(200);
   }

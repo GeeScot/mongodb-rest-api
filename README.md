@@ -3,7 +3,10 @@
 You'll need an Auth0 account to add authentication to the API. Alternatively you could replace the code with another authentication provider.
 
 ## Important
+
 This is an example API for single user per tenant setups. Each inserted mongodb document is given a tenantId field set to the users ID and is filtered when you get the documents, update, or delete a document.
+
+To update fields in a document you only need to send the fields you are changing as you would with a mongodb.updateOne( $set ).
 
 ## Create Envirnoment Variables
 

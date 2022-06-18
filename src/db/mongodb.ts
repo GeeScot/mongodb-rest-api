@@ -13,8 +13,8 @@ async function getCollections(): Promise<any[]> {
   return await mongoClient.db(mongoDatabaseName).listCollections(undefined, { nameOnly: true }).toArray();
 }
 
-function collection<TModel extends Document>(collectionName: string): Collection<TModel> {
+function getCollection<TModel extends Document>(collectionName: string): Collection<TModel> {
   return mongoClient.db(mongoDatabaseName).collection<TModel>(collectionName);
 }
 
-export { connect, collection, getCollections }
+export { connect, getCollection, getCollections }
