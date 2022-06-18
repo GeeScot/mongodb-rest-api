@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  mongodb-rest-api:
+    container_name: mongodb-rest-api
+    image: geescot/mongodb-rest-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file: 
+      - api.env
