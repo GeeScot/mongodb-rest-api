@@ -13,6 +13,20 @@ const collectionsCrudRouter = <TModel extends { _id?: ObjectId, tenantId: string
 
     res.json(objs);
   }
+  
+  async function Search(req: Request, res: Response) {
+    const collection = getCollection(req.params.collection);
+    const searchObject = <TModel>req.body;
+
+    const objs = await collection
+      .find({ 
+        ...searchObject,
+        tenantId: req.user.sub 
+      })
+      .toArray();
+
+    res.json(objs);
+  }
 
   async function Get(req: Request, res: Response) {
     const collection = getCollection(req.params.collection);
@@ -67,6 +81,7 @@ const collectionsCrudRouter = <TModel extends { _id?: ObjectId, tenantId: string
   return (app: Express) => {
     const router = Router();
 
+    router.post('/:collection/search', Search);
     router.post('/:collection/create', Create);
     router.patch('/:collection/update/:id', Update);
     router.delete('/:collection/delete/:id', Delete);

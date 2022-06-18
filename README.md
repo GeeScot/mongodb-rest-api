@@ -6,6 +6,9 @@ GET https://example.com/:collectionName
 ### Get Document by ID from Collection
 GET https://example.com/:collectionName/:id
 
+### Search Documents from Collection
+POST https://example.com/:collectionName/search
+
 ### Create new Document
 POST https://example.com/:collectionName/create
 
